@@ -34,14 +34,22 @@
 
 > **No setup needed!**
 >
-> - A sample ZIP file (`test.zip`) and a popular wordlist (`rockyou.txt`) are already included in this folder.
+> - A sample ZIP file (`test.zip`) is already included in this folder.
 > - The password for `test.zip` is **123321**.
-> - You can use these files to test ScayForce right away.
+> - You need to download the wordlist `rockyou.txt` (not included due to GitHub file size limits).
+
+### ▶️ **How to Download rockyou.txt:**
+
+Run this command in your ScayForce folder:
+```bash
+python ScayForce.py --fetch-wordlist rockyou.txt
+```
+
+Or download it manually from [here](https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt) and place it in the tool folder.
 
 ### ▶️ **How to Test:**
 
 ```bash
-# Make sure you are in the ScayForce folder
 python ScayForce.py --file test.zip --dictionary --wordlist rockyou.txt
 ```
 
@@ -59,6 +67,9 @@ cd ScayForce
 
 # 2. Install requirements
 pip install -r requirements.txt
+
+# 3. Download the wordlist (if you haven't already)
+python ScayForce.py --fetch-wordlist rockyou.txt
 ```
 
 ---
