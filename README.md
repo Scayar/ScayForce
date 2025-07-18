@@ -1,6 +1,6 @@
 <!-- Banner -->
 <p align="center">
-  <img src="https://scayar.com/assets/scayforce-banner.png" alt="ScayForce" width="600"/>
+  <img src="banner.png" alt="ScayForce" width="600"/>
 </p>
 
 <h1 align="center">🚀 ScayForce</h1>
