@@ -1,4 +1,14 @@
-# Modernized zr-cracker.py with hacker vibes, rich output, auto file-type detection, multi-threading, logging, and more
+#!/usr/bin/env python3
+"""
+ScayForce - Modern ZIP/RAR Password Cracker
+Author: Scayar
+Website: https://scayar.com
+Email: Scayar.exe@gmail.com
+Telegram: @im_scayar
+
+A powerful, modern password cracking tool for ZIP and RAR archives
+with beautiful CLI, smart pattern intelligence, and advanced features.
+"""
 import argparse
 import os
 import sys
@@ -7,7 +17,6 @@ import time
 import random
 from datetime import datetime
 import json
-import re
 import urllib.request
 
 try:
@@ -39,7 +48,6 @@ except ImportError:
     notification = None
 import smtplib
 from email.mime.text import MIMEText
-import requests
 
 # ========== Custom Theme ========== #
 hacker_theme = Theme({
@@ -137,12 +145,14 @@ class ZipCracker:
         self.password = None
 
     def try_password(self, password):
+        """Try to extract the ZIP file with the given password."""
         try:
             with pyzipper.AESZipFile(self.filename) as zf:
                 zf.pwd = password.encode("utf-8")
-                zf.extractall(pwd=password.encode("utf-8"))
+                # Try to read the first file without extracting
+                zf.testzip()
             return True
-        except Exception:
+        except (RuntimeError, pyzipper.BadZipFile, Exception):
             return False
 
     def worker(self, passwords, progress, task, feed, update_feed):
@@ -154,8 +164,8 @@ class ZipCracker:
                 self.found.set()
                 if self.log:
                     log_result(self.log, f"[ZIP] Password found: {pwd}")
-                console.print(f"[success]\n[ZIP] Password found: [bold]{pwd}[/bold]")
-                break
+                console.print(f"[success]\n[ZIP] ✓ Password found: [bold]{pwd}[/bold]")
+                return
             if self.verbose and feed is not None:
                 feed.append(pwd)
                 if len(feed) > 10:
@@ -242,11 +252,20 @@ class RarCracker:
         self.password = None
 
     def try_password(self, password):
+        """Try to open the RAR file with the given password."""
         try:
-            with rarfile.RarFile(self.filename) as rf:
-                rf.extractall(pwd=password)
+            rf = rarfile.RarFile(self.filename)
+            rf.setpassword(password)
+            # Try to read file info to verify password
+            if rf.namelist():
+                rf.getinfo(rf.namelist()[0])
+            rf.close()
             return True
-        except Exception:
+        except (rarfile.BadRarFile, rarfile.RarWrongPassword, rarfile.RarCannotExec, Exception):
+            try:
+                rf.close()
+            except:
+                pass
             return False
 
     def worker(self, passwords, progress, task, feed, update_feed):
@@ -258,8 +277,8 @@ class RarCracker:
                 self.found.set()
                 if self.log:
                     log_result(self.log, f"[RAR] Password found: {pwd}")
-                console.print(f"[success]\n[RAR] Password found: [bold]{pwd}[/bold]")
-                break
+                console.print(f"[success]\n[RAR] ✓ Password found: [bold]{pwd}[/bold]")
+                return
             if self.verbose and feed is not None:
                 feed.append(pwd)
                 if len(feed) > 10:
@@ -334,7 +353,7 @@ class RarCracker:
                 log_result(self.log, "[RAR] Password not found (bruteforce).")
 
 # ========== Resume Helpers ========== #
-RESUME_FILE = ".zrcracker_resume.json"
+RESUME_FILE = ".scayforce_resume.json"
 
 def save_resume(state):
     with open(RESUME_FILE, "w", encoding="utf-8") as f:
